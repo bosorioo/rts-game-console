@@ -1,0 +1,13 @@
+name = Archer
+max_health = 12
+attack_damage_min = 4
+attack_damage_max = 7
+attack_speed = 1
+attack_range = 4
+movement_speed = 1
+money_cost = 26
+food_cost = 8
+train_time = 3
+model = a
+atk_type = arrow
+def_type = none

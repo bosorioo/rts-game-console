@@ -1,0 +1,6 @@
+*.exe
+obj/
+bin/*
+!bin/.keep
+*.txt
+!data/**/*.txt

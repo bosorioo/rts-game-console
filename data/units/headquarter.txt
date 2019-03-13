@@ -1,0 +1,10 @@
+name = Headquarter
+max_health = 500
+is_building = 1
+money_income = 2
+money_interval = 5
+food_income = 1
+food_interval = 5
+trainable_units = hire a worker|Worker|train a warrior|Warrior|train an archer|Archer|train a catapult|Catapult
+model = H
+def_type = Defense_Metal

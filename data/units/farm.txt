@@ -1,0 +1,10 @@
+name = Farm
+max_health = 60
+is_building = 1
+food_income = 1
+food_interval = 4
+money_cost = 50
+food_cost = 0
+train_time = 8
+model = F
+def_type = metal

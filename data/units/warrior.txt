@@ -1,0 +1,13 @@
+name = Warrior
+max_health = 30
+attack_damage_min = 5
+attack_damage_max = 9
+attack_speed = 0.75
+attack_range = 1
+movement_speed = 1
+money_cost = 20
+food_cost = 15
+train_time = 3
+model = w
+atk_type = sword
+def_type = shield

@@ -1,0 +1,10 @@
+name = Worker
+max_health = 5
+movement_speed = 1
+money_income = 1
+money_interval = 5
+money_cost = 10
+food_cost = 4
+train_time = 2
+trainable_units = to build a farm|Farm|to build a tower|Tower
+model = v

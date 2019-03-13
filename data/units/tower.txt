@@ -1,0 +1,13 @@
+name = Tower
+max_health = 45
+attack_damage_min = 12
+attack_damage_max = 20
+attack_speed = 0.5
+attack_range = 6
+is_building = 1
+money_cost = 90
+food_cost = 25
+train_time = 18
+model = T
+atk_type = arrow
+def_type = metal

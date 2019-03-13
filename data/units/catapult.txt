@@ -1,0 +1,13 @@
+name = Catapult
+max_health = 30
+attack_damage_min = 8
+attack_damage_max = 18
+attack_speed = 0.16
+attack_range = 6
+movement_speed = 0.26
+money_cost = 60
+food_cost = 10
+train_time = 6
+model = Y
+atk_type = arrow
+def_type = mobile
