@@ -3,6 +3,8 @@
 #include <string.h>
 #include "display.h"
 #include "color_manager.h"
+#include "terminal_size.h"
+#include "report.h"
 #include "engine.h"
 #include "unittype.h"
 
@@ -35,13 +37,21 @@ void Display_Resize(Display* d)
     if (d)
     {
         int rows, cols;
-        getmaxyx(stdscr, rows, cols);
+
+        if (!GetTerminalSize(&cols, &rows))
+        {
+            return;
+        }
 
         if (d->rows == rows && d->cols == cols)
             return;
 
+        loginfo("Resized terminal %d %d", rows, cols);
+
         d->rows = rows;
         d->cols = cols;
+
+        resize_term(rows, cols);
 
         if (d->buffer)
             free(d->buffer);
@@ -52,6 +62,8 @@ void Display_Resize(Display* d)
             d->buffer = (long unsigned int*)malloc(sizeof(long unsigned int) * rows * cols);
 
         Display_Clear(d);
+        clear();
+        // Display_Render(d);
     }
 }
 
@@ -75,11 +87,14 @@ void Display_Render(Display* d)
     clear();
     getmaxyx(stdscr, rows, cols);
 
-    for (i = 0; i < rows && i < d->rows; i++)
+    for (i = 0; i < rows; i++)
     {
-        for (j = 0; j < cols && j < d->cols; j++)
+        for (j = 0; j < cols; j++)
         {
-            mvaddch(i, j, d->buffer[i * d->cols + j]);
+            if (i < d->rows && j < d->cols)
+                mvaddch(i, j, d->buffer[i * d->cols + j]);
+            else
+                mvaddch(i, j, (long unsigned int)' ');
         }
     }
 
@@ -440,11 +455,7 @@ void Display_CheckDimensions(Display* d)
     if (!d)
         return;
 
-    int rows, cols;
-    getmaxyx(stdscr, rows, cols);
-
-    if (d->rows != rows || d->cols != cols)
-        Display_Resize(d);
+    Display_Resize(d);
 }
 
 int Display_IsInsideMap(Display* d, Map* m, int row, int col)
