@@ -8,6 +8,11 @@
 #include "engine.h"
 #include "unittype.h"
 
+static inline int min(int a, int b)
+{
+    return a < b ? a : b;
+}
+
 Display* Display_New()
 {
     Display* d = (Display*)malloc(sizeof(Display));
@@ -208,7 +213,7 @@ void Display_DrawPlayerInfo(Display* d, Player* p, float time)
     Display_DrawText(d, text, 1, width, 0);
     width += temp;
 
-    int box_start = width + 1;
+    int box_start = width;
     float money_inc, food_inc;
     Player_GetIncome(p, &money_inc, &food_inc);
     temp = sprintf(text, " Income: ");
@@ -241,12 +246,16 @@ void Display_DrawText(Display* d, char* text, int row, int col, int center)
 
     if (center)
         col -= length/2;
+
     if (col < 0)
+    {
+        text -= col;
         col = 0;
+    }
 
     long unsigned int modifiers;
 
-    for (i = 0; i < length; i++)
+    for (i = 0; i < length && i + col < d->cols; i++)
     {
         modifiers = 0;
 
@@ -373,7 +382,7 @@ void Display_DrawPlayerSelectionInfo(Display* d, Engine* e, Player* p, int y)
     char buffer[100];
     Unit* selection = Player_GetSelectedUnit(p);
 
-    Display_DrawBox(d, y, 0, d->cols - 1, d->rows - y - 1);
+    Display_DrawBox(d, y, 0, d->cols - 1, min(12, d->rows - y - 1));
 
     if (Player_GetHeadquarter(p) != selection && selection && Unit_GetOwner(selection) == p)
     {

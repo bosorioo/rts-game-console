@@ -52,7 +52,7 @@ static int getMapOffsetX(Screen* s)
 {
     int mapWidth;
     Map_GetSize(Engine_GetMap(engine), &mapWidth, NULL);
-    return getCenteredOffsetX(s, mapWidth);
+    return getCenteredOffsetX(s, mapWidth + 2);
 }
 
 static void mapCoordinatesToMapXY(Screen* s, int* x, int* y)
