@@ -174,7 +174,7 @@ MapProperties Map_DefaultMap()
     MapProperties p;
     p.food = 8;
     p.money = 35;
-    p.width = 40;
+    p.width = 65;
     p.height = 15;
     return p;
 }

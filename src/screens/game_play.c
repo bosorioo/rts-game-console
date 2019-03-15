@@ -27,6 +27,21 @@ void GamePlay_Exit()
     pauseMenu = 0;
 }
 
+static void GamePlay_TogglePause()
+{
+    paused = !paused;
+
+    if (paused)
+        pauseMenu->selected_option = 1;
+}
+
+static void GamePlay_Pause()
+{
+    paused = 1;
+    pauseMenu->selected_option = 1;
+}
+
+
 static int getCenteredOffsetX(Screen* s, int width)
 {
     Display* display = s->display;
@@ -47,6 +62,17 @@ static void mapCoordinatesToMapXY(Screen* s, int* x, int* y)
 
     if (y)
         *y = *y - MAP_OFFSET_Y - 1;
+}
+
+char GamePlay_onExit(Screen* s)
+{
+    if (!paused)
+    {
+        GamePlay_Pause();
+        return 0;
+    }
+
+    return 1;
 }
 
 void GamePlay_onRender(Screen* s)
@@ -102,11 +128,8 @@ void GamePlay_onKeyInput(Screen* s, int input, const char* keyString)
 
     if (input == 27)
     {
-
-        paused = !paused;
-
-        if (paused)
-            pauseMenu->selected_option = 1;
+        GamePlay_TogglePause();
+        return;
     }
 
 
@@ -213,7 +236,7 @@ void InitScreen_GamePlay(Screen* s)
     s->onRender = &GamePlay_onRender;
     s->onUpdate = &GamePlay_onUpdate;
     s->onKeyInput = &GamePlay_onKeyInput;
-    // s->onExit = &GamePlay_onExit;
+    s->onExit = &GamePlay_onExit;
 
     engine = Engine_NewEngine();
     Engine_StartGame(engine, Map_DefaultMap());
