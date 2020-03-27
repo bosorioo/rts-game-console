@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include <ncurses.h>
+#include "ncurses.h"
 #include "display.h"
 #include "clock.h"
 #include "screens.h"
@@ -15,24 +15,28 @@ int main(int argc, char* args[])
     keypad(stdscr, TRUE);
     mousemask(ALL_MOUSE_EVENTS, NULL);
     resize_term(29, 85);
-    nodelay(stdscr, 1);
+    nodelay(stdscr, TRUE);
 
     if (has_colors())
         start_color();
+
+#ifndef _WIN32
+    use_default_colors();
+    curs_set(0);
+    set_escdelay(50);
+#endif
 
     UnitLoader_LoadAllUnits();
     Screen* screen = Screen_New();
     InitScreen_MainMenu(screen);
 
     unsigned long long start = Clock_GetTime(NULL);
-    unsigned long long lastUpdate = Clock_GetTime(NULL);
+    unsigned long long lastUpdate = start;
     unsigned long long delta;
 
     while (Screen_IsRunning(screen))
     {
         Display_CheckDimensions(screen->display);
-        delta = Clock_GetTime(NULL);
-        lastUpdate = Clock_GetTime(&lastUpdate);
 
         int key = getch();
 
@@ -52,22 +56,25 @@ int main(int argc, char* args[])
         if (screen->onKeyInput)
             screen->onKeyInput(screen, key, keyString);
 
+        unsigned long long now = Clock_GetTime(NULL);
+        delta = now - lastUpdate;
+
         if (screen->onUpdate)
+        {
             screen->onUpdate(screen,
-                   (float)Clock_GetTime(&start) * 0.001f,
-                   (float)lastUpdate * 0.001f);
+                   (float)(now - start) * 0.001f,
+                   (float)delta * 0.001f);
+        }
 
         lastUpdate = Clock_GetTime(NULL);
+
         Display_Clear(screen->display);
 
         if (screen->onRender)
             screen->onRender(screen);
 
         Display_Render(screen->display);
-        delta = Clock_GetTime(&delta);
-
-        if (delta < 20)
-            Clock_Sleep(20 - delta);
+        Clock_Sleep(80);
     }
 
     Display_Clear(screen->display);

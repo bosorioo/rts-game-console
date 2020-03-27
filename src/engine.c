@@ -86,8 +86,8 @@ void Engine_StartGame(Engine* e, MapProperties props)
     Player_AddUnit(e->cpu, 1);
     Player_AddIncome(e->cpu, money, food);
 
-    Unit_SetPosition(player_hq, Position_NewPosition(1, 1));
-    Unit_SetPosition(cpu_hq, Position_NewPosition(props.width - 2, props.height - 2));
+    Unit_SetPosition(player_hq, Position_NewPosition(6, 3));
+    Unit_SetPosition(cpu_hq, Position_NewPosition(props.width - 7, props.height - 4));
 
     Map_AddUnit(e->map, player_hq);
     Map_AddUnit(e->map, cpu_hq);

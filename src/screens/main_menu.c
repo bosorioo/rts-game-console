@@ -1,7 +1,8 @@
+#include <ncurses.h>
 #include "screens.h"
 #include "menu.h"
 #include "display.h"
-#include <ncurses.h>
+#include "report.h"
 
 Menu* mainMenu = 0;
 

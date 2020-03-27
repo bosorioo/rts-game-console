@@ -4,3 +4,4 @@ bin/*
 !bin/.keep
 *.txt
 !data/**/*.txt
+rts-game

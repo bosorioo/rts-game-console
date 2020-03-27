@@ -8,25 +8,30 @@ OUTPUT_NAME = rts-game
 
 CC = gcc
 LFLAGS = -lncurses
-CFLAGS = -Wall -I$(INC_PATH) -L$(LIB_PATH)
+CFLAGS = -Wall -I$(INC_PATH)
 
 ifdef SystemRoot
 	REM = del /Q
 	FixPath = $(subst /,\,$1)
+	CFLAGS = $(CFLAGS) -L$(LIB_PATH)
 else
 	REM = rm -f
 	FixPath = $1
 endif
 
-all: exec
+all: init exec
 
 SRC_FILES = $(notdir $(wildcard $(SRC_PATH)*.c))
 SCREENS_FILES = $(patsubst src/screens/%.c, screens/%.c, $(wildcard $(SRC_PATH)screens/*.c))
 FILES = $(SRC_FILES) $(SCREENS_FILES)
 
 $(OBJ_PATH)%.o: $(SRC_PATH)%.c
-	@echo Compiling "$(notdir $@)"...
+	@echo Compiling "$(notdir $@)" $^ $(CC) $(CFLAGS)...
 	@$(CC) -O2 -c $^ -o $@ $(CFLAGS)
+
+init:
+	if [ ! -d "$(OBJ_PATH)" ]; then mkdir $(OBJ_PATH); fi
+	if [ ! -d "$(OBJ_PATH)screens" ]; then mkdir $(OBJ_PATH)screens; fi
 
 exec: $(patsubst %.c, $(OBJ_PATH)%.o, $(FILES))
 	@echo Generating output on "$(OUTPUT_PATH)$(OUTPUT_NAME)".

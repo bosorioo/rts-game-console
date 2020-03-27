@@ -4,9 +4,14 @@
 #include "engine.h"
 #include "map.h"
 #include "report.h"
-#define NCURSES_MOUSE_VERSION
-#include <ncurses.h>
 #include <string.h>
+#define NCURSES_MOUSE_VERSION
+
+#ifdef _WIN32
+    #include <ncurses.h>
+#else
+    #include <curses.h>
+#endif
 
 Engine* engine = 0;
 Menu* pauseMenu = 0;

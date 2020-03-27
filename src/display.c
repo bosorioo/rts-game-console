@@ -173,7 +173,7 @@ void Display_DrawPlayerInfo(Display* d, Player* p, float time)
     int width = 0, temp;
     Player_GetResources(p, &money, &food);
 
-    Display_SetColor(d, COLOR_GREEN, COLOR_BLACK);
+    Display_SetColor(d, COLOR_GREEN, COLOR_BACKGROUND);
     Display_DrawText(d, " Money: ", 1, 1, 0);
     width += 9;
 
@@ -187,7 +187,7 @@ void Display_DrawPlayerInfo(Display* d, Player* p, float time)
     Display_DrawText(d, " | ", 1, width, 0);
     width += 3;
 
-    Display_SetColor(d, COLOR_RED, COLOR_BLACK);
+    Display_SetColor(d, COLOR_RED, COLOR_BACKGROUND);
     Display_DrawText(d, "Food: ", 1, width, 0);
     width += 6;
 
@@ -220,14 +220,14 @@ void Display_DrawPlayerInfo(Display* d, Player* p, float time)
     width += 2;
     Display_DrawText(d, text, 1, width, 0);
     width += temp;
-    Display_SetColor(d, COLOR_GREEN, COLOR_BLACK);
+    Display_SetColor(d, COLOR_GREEN, COLOR_BACKGROUND);
     temp = sprintf(text, "%g", money_inc);
     Display_DrawText(d, text, 1, width, 0);
     width += temp;
     Display_SetColor(d, -1, -1);
     Display_DrawText(d, "/", 1, width, 0);
     width += 1;
-    Display_SetColor(d, COLOR_RED, COLOR_BLACK);
+    Display_SetColor(d, COLOR_RED, COLOR_BACKGROUND);
     temp = sprintf(text, "%g ", food_inc);
     Display_DrawText(d, text, 1, width, 0);
     width += temp;
@@ -283,7 +283,7 @@ void Display_SetColor(Display* d, short c1, short c2)
     if (!d || !has_colors())
         return;
 
-    if (c1 == -1 || c2 == -1)
+    if (c1 == -1 && c2 == -1)
         d->color = 0;
     else
         d->color = Color_GetId(c1, c2);
@@ -343,7 +343,7 @@ void Display_DrawMap(
             Unit* unit = Map_GetUnit(m, Position_NewPosition(col + cameraX, row + cameraY));
             if (unit)
             {
-                short c1 = COLOR_WHITE, c2 = COLOR_BLACK;
+                short c1 = COLOR_WHITE, c2 = COLOR_BACKGROUND;
                 unsigned att = 0;
 
                 if (Player_GetSelectedUnit(p) == unit)
@@ -393,6 +393,9 @@ void Display_DrawPlayerSelectionInfo(Display* d, Engine* e, Player* p, int y)
 
         if (Unit_CanMove(selection))
             Display_DrawText(d, "Use arrow keys to move this unit.", y + 6, 1, 0);
+
+        if (Unit_CanAttack(selection))
+            Display_DrawText(d, "Right-click an enemy to set as target.", y + 8, 1, 0);
     }
 
     snprintf(buffer, sizeof(buffer), "Selected unit: %s %s",

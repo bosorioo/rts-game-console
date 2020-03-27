@@ -172,8 +172,8 @@ enum Direction Map_GetDirectionTo(Map* m, Position start, Position goal)
 MapProperties Map_DefaultMap()
 {
     MapProperties p;
-    p.food = 8;
-    p.money = 35;
+    p.food = 12;
+    p.money = 45;
     p.width = 65;
     p.height = 15;
     return p;

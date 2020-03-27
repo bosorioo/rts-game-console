@@ -1,6 +1,6 @@
 #include "clock.h"
 
-#if defined(_WIN32) /* Implementação de sleep/gettime para windows. */
+#if defined(_WIN32)
 
     #include <windows.h>
 
@@ -29,7 +29,7 @@
         return tnow;
     }
 
-#else /* Implementação de sleep/gettime para linux. */
+#else
 
     #include <unistd.h>
     #include <sys/time.h>
@@ -44,7 +44,7 @@
         unsigned long long tnow;
         struct timeval time;
         gettimeofday(&time, NULL);
-        tnow = (unsigned long long)(time.tv_sec) * 1000000ULL + time.tv_usec / 1000ULL;
+        tnow = (unsigned long long)(time.tv_sec) * 1000ULL + time.tv_usec / 1000ULL;
 
         if (last)
             return (tnow - *last) / 1000ULL;
