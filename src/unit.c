@@ -23,6 +23,7 @@ Unit* Unit_NewUnit()
 
         u->movement_speed = 0.;
         u->movement_last_tick = 0.;
+        u->movement_next = None;
 
         u->is_building = 0;
 

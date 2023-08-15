@@ -8,7 +8,7 @@ OUTPUT_NAME = rts-game
 
 CC = gcc
 LFLAGS = -lncurses
-CFLAGS = -Wall -I$(INC_PATH)
+CFLAGS = -Wall -I$(INC_PATH) -g
 
 ifdef SystemRoot
 	REM = del /Q
@@ -44,6 +44,10 @@ unittype.o
 
 print:
 	@echo $(FILES) $(REM)
+
+docker:
+	docker build -t rts-game .
+	docker run -it rts-game
 
 clean:
 	@$(REM) $(call FixPath, $(OBJ_PATH)*.o $(OBJ_PATH)*.gcda \

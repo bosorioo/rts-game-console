@@ -23,6 +23,7 @@ struct Unit
 
     float movement_speed;
     float movement_last_tick;
+    enum Direction movement_next;
 
     char is_building;
 

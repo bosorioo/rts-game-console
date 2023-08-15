@@ -18,7 +18,7 @@ Menu* pauseMenu = 0;
 float time = 0.0f;
 int paused = 0;
 
-static int MAP_OFFSET_Y = 3;
+static int MAP_OFFSET_Y = 2;
 
 void GamePlay_Exit()
 {
@@ -100,19 +100,20 @@ void GamePlay_onRender(Screen* s)
     int cameraX, cameraY;
     int mapX = getMapOffsetX(s);
     int mapWidth, mapHeight;
+    int mapBoundedHeight = s->display->rows - 8 - MAP_OFFSET_Y;
 
     Player_GetCamera(Engine_GetPlayer(engine), &cameraX, &cameraY);
     Map_GetSize(map, &mapWidth, &mapHeight);
 
     Display_DrawPlayerInfo(display, player, engine->time);
-    Display_DrawBox(display, MAP_OFFSET_Y, mapX, mapWidth + 2, mapHeight + 1);
+    Display_DrawPlayerSelectionInfo(display, engine, player, MAP_OFFSET_Y + mapBoundedHeight);
+    Display_DrawBox(display, MAP_OFFSET_Y, mapX, mapWidth + 2, mapBoundedHeight);
     Display_DrawMap(
         display, map, player,
         mapX + 1, MAP_OFFSET_Y + 1,
-        mapX + mapWidth + 1, MAP_OFFSET_Y + mapHeight + 2,
+        mapX + mapWidth + 1, mapBoundedHeight + 1,
         cameraX, cameraY
     );
-    Display_DrawPlayerSelectionInfo(display, engine, player, MAP_OFFSET_Y + mapHeight + 2);
 }
 
 void GamePlay_onUpdate(Screen* s, float total_time, float delta_time)

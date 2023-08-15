@@ -369,6 +369,7 @@ void Display_DrawMap(
 
                 Display_SetColor(d, -1, -1);
                 Display_SetAttributes(d, 0);
+
             }
         }
     }

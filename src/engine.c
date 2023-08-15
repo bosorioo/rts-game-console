@@ -121,6 +121,11 @@ void Engine_AdvanceTime(Engine* e, float delta)
             continue;
         }
 
+        if (unit->movement_next != None)
+        {
+            Engine_MoveUnit(e, unit, unit->movement_next);
+        }
+
         Engine_CheckUnitAttack(e, unit);
         Engine_CheckUnitTraining(e, unit);
         Unit_GenerateIncome(unit, e->time);
@@ -260,11 +265,18 @@ void Engine_MoveUnit(Engine* e, Unit* u, enum Direction dir)
         return;
 
     if (Unit_CanMove(u) &&
-        !Unit_IsMovementExhausted(u, e->time) &&
         Map_CanWalk(e->map, Position_Moved(Unit_GetPosition(u), dir)))
     {
-        Map_MoveUnit(e->map, u, dir);
-        Unit_SetLastMoveTick(u, e->time);
+        if (Unit_IsMovementExhausted(u, e->time))
+        {
+            u->movement_next = dir;
+        }
+        else
+        {
+            Map_MoveUnit(e->map, u, dir);
+            Unit_SetLastMoveTick(u, e->time);
+            u->movement_next = None;
+        }
     }
 }
 
