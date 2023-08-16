@@ -26,6 +26,21 @@ Display* Display_New()
     return d;
 }
 
+Display* Display_NewSized(unsigned width, unsigned height)
+{
+    Display* d = (Display*)malloc(sizeof(Display));
+    if (d)
+    {
+        unsigned size = width * height;
+        d->buffer = size > 0
+            ? (long unsigned int*)malloc(sizeof(long unsigned int) * size)
+            : NULL;
+        d->rows = height;
+        d->cols = width;
+    }
+    return d;
+}
+
 void Display_Delete(Display* d)
 {
     if (!d)
@@ -82,6 +97,47 @@ void Display_Clear(Display* d)
         d->buffer[i] = (long unsigned int)' ';
 }
 
+void Display_DrawOnDisplay(Display* dst, Display* src, int dstRow, int dstCol, int rowFrom, int colFrom, int rowTo, int colTo)
+{
+    if (!dst || !src)
+    {
+        return;
+    }
+
+    if (rowFrom < 0)
+        rowFrom = 0;
+    if (rowFrom >= src->rows)
+        rowFrom = src->rows - 1;
+
+    if (rowTo < 0)
+        rowTo = 0;
+    if (rowTo >= src->rows)
+        rowTo = src->rows - 1;
+
+    if (colFrom < 0)
+        colFrom = 0;
+    if (colFrom >= src->cols)
+        colFrom = src->cols - 1;
+
+    if (colTo < 0)
+        colTo = 0;
+    if (colTo >= src->cols)
+        colTo = src->cols - 1;
+
+    for (int y = rowFrom; y <= rowTo; y++)
+    {
+        for (int x = colFrom; x <= colTo; x++)
+        {
+            int dstX = x + dstCol;
+            int dstY = y + dstRow;
+            if (dstX >= 0 && dstX < dst->cols && dstY >= 0 && dstY < dst->rows)
+            {
+                dst->buffer[dstY * dst->cols + dstX] = src->buffer[y * src->cols + x];
+            }
+        }
+    }
+}
+
 void Display_Render(Display* d)
 {
     if (!d)
@@ -106,7 +162,7 @@ void Display_Render(Display* d)
     refresh();
 }
 
-void Display_Draw(Display* d, long unsigned int model, int row, int col)
+inline void Display_Draw(Display* d, long unsigned int model, int row, int col)
 {
     if (!d || !d->buffer || row < 0 || col < 0 || row >= d->rows || col >= d->cols)
         return;
@@ -168,49 +224,65 @@ void Display_DrawPlayerInfo(Display* d, Player* p, float time)
     if (!d || !p)
         return;
 
+    static Display* playerInfoDisplay = NULL;
+
+    if (playerInfoDisplay == NULL || playerInfoDisplay->cols != d->cols)
+    {
+        if (playerInfoDisplay != NULL)
+        {
+            Display_Delete(playerInfoDisplay);
+        }
+        playerInfoDisplay = Display_NewSized(d->cols, 3);
+    }
+
+    if (!playerInfoDisplay)
+        return;
+
+    Display_Clear(playerInfoDisplay);
+
     char text[25];
     int money, food;
     int width = 0, temp;
     Player_GetResources(p, &money, &food);
 
-    Display_SetColor(d, COLOR_GREEN, COLOR_BACKGROUND);
-    Display_DrawText(d, " Money: ", 1, 1, 0);
+    Display_SetColor(playerInfoDisplay, COLOR_GREEN, COLOR_BACKGROUND);
+    Display_DrawText(playerInfoDisplay, " Money: ", 1, 1, 0);
     width += 9;
 
     temp = sprintf(text, "%d", money);
 
-    Display_SetColor(d, -1, -1);
-    Display_DrawText(d, text, 1, width, 0);
+    Display_SetColor(playerInfoDisplay, -1, -1);
+    Display_DrawText(playerInfoDisplay, text, 1, width, 0);
     width += temp;
 
-    Display_SetColor(d, -1, -1);
-    Display_DrawText(d, " | ", 1, width, 0);
+    Display_SetColor(playerInfoDisplay, -1, -1);
+    Display_DrawText(playerInfoDisplay, " | ", 1, width, 0);
     width += 3;
 
-    Display_SetColor(d, COLOR_RED, COLOR_BACKGROUND);
-    Display_DrawText(d, "Food: ", 1, width, 0);
+    Display_SetColor(playerInfoDisplay, COLOR_RED, COLOR_BACKGROUND);
+    Display_DrawText(playerInfoDisplay, "Food: ", 1, width, 0);
     width += 6;
 
     temp = sprintf(text, "%d ", food);
 
-    Display_SetColor(d, -1, -1);
-    Display_DrawText(d, text, 1, width, 0);
+    Display_SetColor(playerInfoDisplay, -1, -1);
+    Display_DrawText(playerInfoDisplay, text, 1, width, 0);
     width += temp;
 
-    Display_DrawBox(d, 0, 0, width, 2);
+    Display_DrawBox(playerInfoDisplay, 0, 0, width, 2);
     width += 1;
 
     temp = snprintf(text, sizeof(text), " Game time: %.1f ", time);
-    Display_DrawBox(d, 0, width, temp + 1, 2);
+    Display_DrawBox(playerInfoDisplay, 0, width, temp + 1, 2);
     width += 1;
-    Display_DrawText(d, text, 1, width, 0);
+    Display_DrawText(playerInfoDisplay, text, 1, width, 0);
     width += temp;
 
     temp = sprintf(text, " Units: %d ", Player_GetUnitCount(p));
     width += 1;
-    Display_DrawBox(d, 0, width, temp + 1, 2);
+    Display_DrawBox(playerInfoDisplay, 0, width, temp + 1, 2);
     width += 1;
-    Display_DrawText(d, text, 1, width, 0);
+    Display_DrawText(playerInfoDisplay, text, 1, width, 0);
     width += temp;
 
     int box_start = width;
@@ -218,22 +290,26 @@ void Display_DrawPlayerInfo(Display* d, Player* p, float time)
     Player_GetIncome(p, &money_inc, &food_inc);
     temp = sprintf(text, " Income: ");
     width += 2;
-    Display_DrawText(d, text, 1, width, 0);
+    Display_DrawText(playerInfoDisplay, text, 1, width, 0);
     width += temp;
-    Display_SetColor(d, COLOR_GREEN, COLOR_BACKGROUND);
+    Display_SetColor(playerInfoDisplay, COLOR_GREEN, COLOR_BACKGROUND);
     temp = sprintf(text, "%g", money_inc);
-    Display_DrawText(d, text, 1, width, 0);
+    Display_DrawText(playerInfoDisplay, text, 1, width, 0);
     width += temp;
-    Display_SetColor(d, -1, -1);
-    Display_DrawText(d, "/", 1, width, 0);
+    Display_SetColor(playerInfoDisplay, -1, -1);
+    Display_DrawText(playerInfoDisplay, "/", 1, width, 0);
     width += 1;
-    Display_SetColor(d, COLOR_RED, COLOR_BACKGROUND);
+    Display_SetColor(playerInfoDisplay, COLOR_RED, COLOR_BACKGROUND);
     temp = sprintf(text, "%g ", food_inc);
-    Display_DrawText(d, text, 1, width, 0);
+    Display_DrawText(playerInfoDisplay, text, 1, width, 0);
     width += temp;
-    Display_SetColor(d, -1, -1);
+    Display_SetColor(playerInfoDisplay, -1, -1);
 
-    Display_DrawBox(d, 0, box_start, width - box_start, 2);
+    Display_DrawBox(playerInfoDisplay, 0, box_start, width - box_start, 2);
+    int centerX = (d->cols - width) >> 1;
+    if (centerX < 0)
+        centerX = 0;
+    Display_DrawOnDisplay(d, playerInfoDisplay, 0, centerX, 0, 0, playerInfoDisplay->rows - 1, playerInfoDisplay->cols - 1);
 }
 
 void Display_DrawText(Display* d, char* text, int row, int col, int center)
@@ -253,19 +329,10 @@ void Display_DrawText(Display* d, char* text, int row, int col, int center)
         col = 0;
     }
 
-    long unsigned int modifiers;
-
     for (i = 0; i < length && i + col < d->cols; i++)
     {
-        modifiers = 0;
+        Display_Draw(d, text[i], row, col + i);
 
-        if (d->color)
-            modifiers |= d->color;
-
-        if (d->attributes)
-            modifiers |= d->attributes;
-
-        d->buffer[row * d->cols + col + i] = text[i] | modifiers;
     }
 }
 

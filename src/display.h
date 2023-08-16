@@ -15,9 +15,11 @@ typedef struct
 } Display;
 
 Display* Display_New();
+Display* Display_NewSized(unsigned width, unsigned height);
 void Display_Delete(Display* d);
 void Display_Clear(Display* d);
 void Display_Resize(Display* d);
+void Display_DrawOnDisplay(Display* dst, Display* src, int dstRow, int dstCol, int rowFrom, int colFrom, int rowTo, int colTo);
 void Display_Render(Display* d);
 void Display_Draw(Display* d, long unsigned int model, int row, int col);
 void Display_DrawHLine(Display* d, long unsigned int model, int row, int col, int length);

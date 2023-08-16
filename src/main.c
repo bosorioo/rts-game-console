@@ -38,23 +38,35 @@ int main(int argc, char* args[])
     {
         Display_CheckDimensions(screen->display);
 
-        int key = getch();
-
-        if (key == 450) key = KEY_UP;
-        else if (key == 456) key = KEY_DOWN;
-        else if (key == 454) key = KEY_RIGHT;
-        else if (key == 452) key = KEY_LEFT;
-
-        const char* keyString = keyname(key);
-
-        if (key != -1 && strcmp(keyString, "^C") == 0 &&
-            (!screen->onExit || screen->onExit(screen)))
+        int keyIterationsLimit = 20;
+        int shouldExit = 0;
+        do
         {
-            break;
-        }
+            int key = getch();
 
-        if (screen->onKeyInput)
-            screen->onKeyInput(screen, key, keyString);
+            if (key == -1)
+                break;
+
+            if (key == 450) key = KEY_UP;
+            else if (key == 456) key = KEY_DOWN;
+            else if (key == 454) key = KEY_RIGHT;
+            else if (key == 452) key = KEY_LEFT;
+
+            const char* keyString = keyname(key);
+
+            if (strcmp(keyString, "^C") == 0 &&
+                (!screen->onExit || screen->onExit(screen)))
+            {
+                shouldExit = 1;
+                break;
+            }
+
+            if (screen->onKeyInput)
+                screen->onKeyInput(screen, key, keyString);
+        } while (keyIterationsLimit-- > 0);
+
+        if (shouldExit)
+            break;
 
         unsigned long long now = Clock_GetTime(NULL);
         delta = now - lastUpdate;
@@ -74,7 +86,7 @@ int main(int argc, char* args[])
             screen->onRender(screen);
 
         Display_Render(screen->display);
-        Clock_Sleep(80);
+        Clock_Sleep(50);
     }
 
     Display_Clear(screen->display);
